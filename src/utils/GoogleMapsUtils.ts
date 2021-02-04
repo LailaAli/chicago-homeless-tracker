@@ -1,8 +1,6 @@
 // This script will check to see if the Google Maps script has been downloaded by our app.
 export const loadMapApi = () => {
-  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  // const mapsURL = 'https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&languages=en&v=quarterly';
-  const mapsURL = 'https://maps.googleapis.com/maps/api/js?key=&libraries=places&languages=en&v=quarterly';
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${ process.env.REACT_APP_GOOGLE_MAPS_API_KEY }&libraries=places&languages=en&v=quarterly`;
 
   // Create script to refer to URL above
   // Collect all scripts into a variable
