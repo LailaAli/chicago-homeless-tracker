@@ -242,6 +242,7 @@ const mapStyles: object[] = [
       ],
    },
 ];
+
 const Map: React.FC<IMap> = (props) => {
    const { mapType, mapTypeControl = false } = props;
 
@@ -261,62 +262,6 @@ const Map: React.FC<IMap> = (props) => {
    const defaultMapStart = (): void => {
       const defaultAddress = new google.maps.LatLng(41.892914, -87.63591);
       initMap(14, defaultAddress);
-   };
-
-   // API call
-   const coordinateToAddress = async (coordinate: GoogleLatLng) => {
-      const geocoder = new google.maps.Geocoder();
-      await geocoder.geocode(
-         { location: coordinate },
-         function (results, status) {
-            if (status === "OK") {
-               console.log(results[0].formatted_address);
-               setMarker({
-                  address: results[0].formatted_address,
-                  latitude: coordinate.lat(),
-                  longitude: coordinate.lng(),
-               });
-            } else {
-               // Do something
-            }
-         }
-      );
-   };
-
-   // Listen for clicks for the markers
-   const initEventListener = (): void => {
-      if (map) {
-         google.maps.event.addListener(map, "click", function (e) {
-            console.log(e);
-            coordinateToAddress(e.latLng);
-         });
-      }
-   };
-
-   const addMarker = (location: GoogleLatLng): void => {
-      const marker: GoogleMarker = new google.maps.Marker({
-         position: location,
-         map: map,
-         icon: getIconAttributes("#a8db01"),
-      });
-   };
-
-   const getIconAttributes = (iconColor: string) => {
-      return {
-         path:
-            "M11.0639 15.3003L26.3642 2.47559e-05L41.6646 15.3003L26.3638 51.3639L11.0639 15.3003 M22,17.5a4.5,4.5 0 1,0 9,0a4.5,4.5 0 1,0 -9,0Z",
-         fillColor: iconColor,
-         fillOpacity: 0.8,
-         strokeColor: "#4d3700",
-         strokeWeight: 2,
-         anchor: new google.maps.Point(30, 50),
-      };
-   };
-
-   const addSingleMarker = (): void => {
-      if (marker) {
-         addMarker(new google.maps.LatLng(marker.latitude, marker.longitude));
-      }
    };
 
    const initMap = (zoomLevel: number, address: GoogleLatLng): void => {
@@ -339,6 +284,62 @@ const Map: React.FC<IMap> = (props) => {
             })
          );
       }
+   };
+
+   // Listen for clicks for the markers
+   const initEventListener = (): void => {
+      if (map) {
+         google.maps.event.addListener(map, "click", function (e) {
+            console.log(e);
+            coordinateToAddress(e.latLng);
+         });
+      }
+   };
+
+   // API call
+   const coordinateToAddress = async (coordinate: GoogleLatLng) => {
+      const geocoder = new google.maps.Geocoder();
+      await geocoder.geocode(
+         { location: coordinate },
+         function (results, status) {
+            if (status === "OK") {
+               console.log(results[0].formatted_address);
+               setMarker({
+                  address: results[0].formatted_address,
+                  latitude: coordinate.lat(),
+                  longitude: coordinate.lng(),
+               });
+            } else {
+               // Do something
+            }
+         }
+      );
+   };
+
+   const addSingleMarker = (): void => {
+      if (marker) {
+         addMarker(new google.maps.LatLng(marker.latitude, marker.longitude));
+      }
+   };
+
+   const addMarker = (location: GoogleLatLng): void => {
+      const marker: GoogleMarker = new google.maps.Marker({
+         position: location,
+         map: map,
+         icon: getIconAttributes("#a8db01"),
+      });
+   };
+
+   const getIconAttributes = (iconColor: string) => {
+      return {
+         path:
+            "M11.0639 15.3003L26.3642 2.47559e-05L41.6646 15.3003L26.3638 51.3639L11.0639 15.3003 M22,17.5a4.5,4.5 0 1,0 9,0a4.5,4.5 0 1,0 -9,0Z",
+         fillColor: iconColor,
+         fillOpacity: 0.8,
+         strokeColor: "#4d3700",
+         strokeWeight: 2,
+         anchor: new google.maps.Point(30, 50),
+      };
    };
 
    // useEffects
