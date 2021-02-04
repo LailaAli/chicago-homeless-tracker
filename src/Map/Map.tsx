@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import css from "./Map.module.scss";
-
+import hat from "../assets/hat.svg";
 // Interfaces/Types
 interface IMap {
    mapType: google.maps.MapTypeId;
@@ -20,17 +20,77 @@ type GoogleMarker = google.maps.Marker;
 
 const mapStyles: object[] = [
    {
+      featureType: "all",
+      elementType: "labels.text.stroke",
+      stylers: [
+         {
+            visibility: "on",
+         },
+      ],
+   },
+   {
       featureType: "administrative",
       elementType: "labels.text.fill",
       stylers: [
          {
-            saturation: "1",
+            color: "#56331d",
+         },
+      ],
+   },
+   {
+      featureType: "administrative.country",
+      elementType: "geometry.fill",
+      stylers: [
+         {
+            saturation: "13",
          },
          {
-            lightness: "-100",
+            lightness: "-4",
          },
          {
-            hue: "#ff0000",
+            visibility: "on",
+         },
+      ],
+   },
+   {
+      featureType: "administrative.country",
+      elementType: "labels.text.fill",
+      stylers: [
+         {
+            color: "#56331d",
+         },
+      ],
+   },
+   {
+      featureType: "administrative.neighborhood",
+      elementType: "labels.text",
+      stylers: [
+         {
+            color: "#56331d",
+         },
+         {
+            saturation: "0",
+         },
+      ],
+   },
+   {
+      featureType: "administrative.neighborhood",
+      elementType: "labels.text.fill",
+      stylers: [
+         {
+            color: "#ab693f",
+         },
+         {
+            saturation: "0",
+         },
+      ],
+   },
+   {
+      featureType: "administrative.neighborhood",
+      elementType: "labels.text.stroke",
+      stylers: [
+         {
+            visibility: "off",
          },
       ],
    },
@@ -39,61 +99,55 @@ const mapStyles: object[] = [
       elementType: "all",
       stylers: [
          {
-            hue: "#ff0000",
-         },
-         {
-            lightness: "-2",
-         },
-         {
-            saturation: "-70",
+            color: "#f2f2f2",
          },
       ],
    },
    {
-      featureType: "landscape.natural",
-      elementType: "all",
+      featureType: "landscape",
+      elementType: "geometry",
       stylers: [
          {
-            visibility: "simplified",
+            visibility: "on",
          },
          {
-            saturation: "-100",
-         },
-         {
-            hue: "#ff0000",
-         },
-         {
-            lightness: "100",
+            color: "#ffffff",
          },
       ],
    },
    {
-      featureType: "poi",
-      elementType: "all",
+      featureType: "landscape",
+      elementType: "geometry.stroke",
       stylers: [
          {
-            visibility: "simplified",
+            weight: "0.62",
          },
          {
-            saturation: "-100",
+            color: "#ffd8b4",
          },
          {
-            lightness: "10",
+            visibility: "on",
          },
       ],
    },
    {
-      featureType: "poi",
-      elementType: "labels",
+      featureType: "landscape.natural.landcover",
+      elementType: "geometry.fill",
       stylers: [
+         {
+            color: "#ff0000",
+         },
          {
             visibility: "off",
          },
+      ],
+   },
+   {
+      featureType: "poi",
+      elementType: "all",
+      stylers: [
          {
-            saturation: "-100",
-         },
-         {
-            lightness: "-20",
+            visibility: "off",
          },
       ],
    },
@@ -102,16 +156,13 @@ const mapStyles: object[] = [
       elementType: "all",
       stylers: [
          {
-            saturation: "-50",
+            saturation: -100,
          },
          {
-            lightness: "1",
+            lightness: 45,
          },
          {
-            hue: "#ff0000",
-         },
-         {
-            visibility: "simplified",
+            visibility: "on",
          },
       ],
    },
@@ -119,6 +170,42 @@ const mapStyles: object[] = [
       featureType: "road.highway",
       elementType: "all",
       stylers: [
+         {
+            visibility: "simplified",
+         },
+      ],
+   },
+   {
+      featureType: "road.highway",
+      elementType: "geometry.fill",
+      stylers: [
+         {
+            color: "#eccca8",
+         },
+         {
+            visibility: "off",
+         },
+      ],
+   },
+   {
+      featureType: "road.highway",
+      elementType: "geometry.stroke",
+      stylers: [
+         {
+            color: "#713700",
+         },
+         {
+            visibility: "off",
+         },
+      ],
+   },
+   {
+      featureType: "road.highway",
+      elementType: "labels.text.fill",
+      stylers: [
+         {
+            color: "#451e07",
+         },
          {
             visibility: "on",
          },
@@ -147,29 +234,14 @@ const mapStyles: object[] = [
       elementType: "all",
       stylers: [
          {
-            color: "#43494e",
+            color: "#fee2c8",
          },
          {
             visibility: "on",
          },
       ],
    },
-   {
-      featureType: "water",
-      elementType: "labels",
-      stylers: [
-         {
-            visibility: "simplified",
-         },
-         {
-            lightness: "20",
-         },
-      ],
-   },
 ];
-
-const markerIcon = { url: "../assets/hat.svg" };
-
 const Map: React.FC<IMap> = (props) => {
    const { mapType, mapTypeControl = false } = props;
 
@@ -225,18 +297,19 @@ const Map: React.FC<IMap> = (props) => {
       const marker: GoogleMarker = new google.maps.Marker({
          position: location,
          map: map,
-         icon: getIconAttributes("#f7ca05"),
+         icon: getIconAttributes("#a8db01"),
       });
    };
 
    const getIconAttributes = (iconColor: string) => {
       return {
-         path: google.maps.SymbolPath.CIRCLE,
-         // path: markerIcon,
-         scale: 10,
-         strokeWeight: 3,
-         // fillColor: "#f7ca05",
-         iconColor: iconColor,
+         path:
+            "M11.0639 15.3003L26.3642 2.47559e-05L41.6646 15.3003L26.3638 51.3639L11.0639 15.3003 M22,17.5a4.5,4.5 0 1,0 9,0a4.5,4.5 0 1,0 -9,0Z",
+         fillColor: iconColor,
+         fillOpacity: 0.8,
+         strokeColor: "#4d3700",
+         strokeWeight: 2,
+         anchor: new google.maps.Point(30, 50),
       };
    };
 
@@ -253,7 +326,6 @@ const Map: React.FC<IMap> = (props) => {
             new google.maps.Map(ref.current, {
                zoom: zoomLevel,
                center: address,
-               mapTypeControl: mapTypeControl,
                streetViewControl: false,
                rotateControl: false,
                scaleControl: false,
@@ -262,6 +334,8 @@ const Map: React.FC<IMap> = (props) => {
                draggableCursor: mapType,
                mapTypeId: mapType,
                styles: mapStyles,
+               disableDefaultUI: true,
+               mapTypeControl: false,
             })
          );
       }
@@ -274,6 +348,9 @@ const Map: React.FC<IMap> = (props) => {
 
    return (
       <div className={css.mapContainer}>
+         <h1>
+            <img className={css.hatLogo} src={hat} alt="logo" />
+         </h1>
          <div ref={ref} className={css.map}></div>
       </div>
    );
