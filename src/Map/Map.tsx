@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import css from "./Map.module.scss";
 import hat from "../assets/hat.svg";
+import db from "../firebase";
+
 // Interfaces/Types
 interface IMap {
    mapType: google.maps.MapTypeId;
@@ -9,6 +11,7 @@ interface IMap {
 }
 
 interface IMarker {
+   place_id: string;
    address: string;
    latitude: number;
    longitude: number;
@@ -290,7 +293,6 @@ const Map: React.FC<IMap> = (props) => {
    const initEventListener = (): void => {
       if (map) {
          google.maps.event.addListener(map, "click", function (e) {
-            console.log(e);
             coordinateToAddress(e.latLng);
          });
       }
@@ -303,8 +305,9 @@ const Map: React.FC<IMap> = (props) => {
          { location: coordinate },
          function (results, status) {
             if (status === "OK") {
-               console.log(results[0].formatted_address);
+               // console.log(results[0]);
                setMarker({
+                  place_id: results[0].place_id,
                   address: results[0].formatted_address,
                   latitude: coordinate.lat(),
                   longitude: coordinate.lng(),
@@ -319,6 +322,9 @@ const Map: React.FC<IMap> = (props) => {
    const addSingleMarker = (): void => {
       if (marker) {
          addMarker(new google.maps.LatLng(marker.latitude, marker.longitude));
+
+         // Add new marker to db
+         db.collection("markers").doc(marker.place_id).set(marker);
       }
    };
 
@@ -342,8 +348,24 @@ const Map: React.FC<IMap> = (props) => {
       };
    };
 
+   const showExistingMarkers = (): void => {
+      // TODO: Retrieve all markers from database
+      // db.collection("markers").onSnapshot(
+      //    (snapshot) =>
+      //       setMarkers(
+      //          snapshot.docs.map((doc) => ({
+      //             place_id: doc.data().placeId,
+      //             longitude: doc.data().longitude,
+      //             latitude: doc.data().latitude,
+      //          }))
+      //       )
+      //    // snapshot.docs.map((doc) => console.log(doc.data()))
+      // );
+   };
+
    // useEffects
    useEffect(startMap, [map]);
+   useEffect(showExistingMarkers, []);
    useEffect(initEventListener, [map]);
    useEffect(addSingleMarker, [marker]);
 
