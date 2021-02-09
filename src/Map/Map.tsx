@@ -21,6 +21,7 @@ type GoogleLatLng = google.maps.LatLng;
 type GoogleMap = google.maps.Map;
 type GoogleMarker = google.maps.Marker;
 
+// Variables
 const mapStyles: object[] = [
    {
       featureType: "all",
@@ -246,6 +247,8 @@ const mapStyles: object[] = [
    },
 ];
 
+const markers: IMarker[] = [];
+
 const Map: React.FC<IMap> = (props) => {
    const { mapType, mapTypeControl = false } = props;
 
@@ -298,14 +301,13 @@ const Map: React.FC<IMap> = (props) => {
       }
    };
 
-   // API call
+   // API call - get coordinates/address of the click
    const coordinateToAddress = async (coordinate: GoogleLatLng) => {
       const geocoder = new google.maps.Geocoder();
       await geocoder.geocode(
          { location: coordinate },
          function (results, status) {
             if (status === "OK") {
-               // console.log(results[0]);
                setMarker({
                   place_id: results[0].place_id,
                   address: results[0].formatted_address,
@@ -319,23 +321,33 @@ const Map: React.FC<IMap> = (props) => {
       );
    };
 
+   // Add new marker on click
    const addSingleMarker = (): void => {
       if (marker) {
          addMarker(new google.maps.LatLng(marker.latitude, marker.longitude));
 
+         // Add marker to an array
+         markers.push(marker);
+         console.log("markers ", markers);
+
          // Add new marker to db
-         db.collection("markers").doc(marker.place_id).set(marker);
+         // db.collection("markers").doc(marker.place_id).set(marker);
+
+         // Attach click event handler to marker
       }
    };
 
+   // Create marker
    const addMarker = (location: GoogleLatLng): void => {
       const marker: GoogleMarker = new google.maps.Marker({
          position: location,
          map: map,
          icon: getIconAttributes("#a8db01"),
+         clickable: true,
       });
    };
 
+   // Build marker icon
    const getIconAttributes = (iconColor: string) => {
       return {
          path:
@@ -348,19 +360,48 @@ const Map: React.FC<IMap> = (props) => {
       };
    };
 
+   // TODO
+   // Delete marker
+   const deleteMarker = (): void => {
+      if (map) {
+         google.maps.event.addListener(map, "click", function (marker) {
+            for (let i = 0; i < markers.length; i++) {
+               if (markers[i].place_id === marker.place_id) {
+                  console.log(markers[i].place_id);
+               } else {
+                  console.log("no match");
+               }
+            }
+         });
+      }
+
+      // if (marker) {
+      //    setMarker(undefined);
+      //    db.collection("markers")
+      //       .doc(marker.place_id)
+      //       .delete()
+      //       .then(() => {
+      //          console.log("Document successfully deleted!");
+      //       })
+      //       .catch((error) => {
+      //          console.error("Error removing document: ", error);
+      //       });
+      // }
+   };
+
+   // TODO
    const showExistingMarkers = (): void => {
-      // TODO: Retrieve all markers from database
-      // db.collection("markers").onSnapshot(
-      //    (snapshot) =>
-      //       setMarkers(
-      //          snapshot.docs.map((doc) => ({
-      //             place_id: doc.data().placeId,
-      //             longitude: doc.data().longitude,
-      //             latitude: doc.data().latitude,
-      //          }))
-      //       )
-      //    // snapshot.docs.map((doc) => console.log(doc.data()))
-      // );
+      // otherwise loop through each and run the addSingleMarker()
+      db.collection("markers").onSnapshot((snapshot) => {
+         snapshot.docs.map((doc) => ({
+            //    setMarker ( {
+            //    place_id: doc.data().placeId,
+            //    longitude: doc.data().longitude,
+            //    latitude: doc.data().latitude,
+            // } ),
+            // snapshot.docs.map((doc) => console.log(doc.data()))
+         }));
+      });
    };
 
    // useEffects
